@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#14b8a6">
+    <title>Tính độ thấm cấu trúc xốp composite</title>
+    <link rel="stylesheet" href="style.css?v=16">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="brand">
+                <span class="brand-name">Tính độ thấm</span>
+            </div>
+            <span class="brand-desc">Cấu trúc xốp composite</span>
+        </div>
+        <div class="header-right">
+            <div class="unit-switch">
+                <span class="unit-label">Đơn vị</span>
+                <div class="switch-group">
+                    <input type="radio" name="unit" id="unit-um" value="um" checked>
+                    <label for="unit-um">µm</label>
+                    <input type="radio" name="unit" id="unit-m" value="m">
+                    <label for="unit-m">m</label>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <aside class="sidebar">
+            <!-- Single Prediction Card -->
+            <div class="card">
+                <div class="card-title">Tính độ thấm</div>
+                <form id="prediction-form">
+                    <div class="field">
+                        <div class="field-header">
+                            <label for="porosity">Độ xốp ε [-]</label>
+                            <span class="field-hint">(0-1)</span>
+                        </div>
+                        <input type="number" id="porosity" value="0.75" min="0" max="1" step="0.01" inputmode="decimal" autocomplete="off" required>
+                        <input type="range" id="porosity-slider" value="0.75" min="0" max="1" step="0.01">
+                    </div>
+                    
+                    <div class="field">
+                        <div class="field-header">
+                            <label for="particle_ratio">Tỉ lệ hạt [-]</label>
+                            <span class="field-hint">(0-1)</span>
+                        </div>
+                        <input type="number" id="particle_ratio" value="0.54" min="0" max="1" step="0.01" inputmode="decimal" autocomplete="off" required>
+                        <input type="range" id="particle_ratio-slider" value="0.54" min="0" max="1" step="0.01">
+                    </div>
+                    
+                    <div class="field">
+                        <div class="field-header">
+                            <label for="Df_mean">ĐK sợi trung bình</label>
+                            <span class="field-hint">(µm)</span>
+                        </div>
+                        <input type="number" id="Df_mean" value="3.0" min="0" step="any" inputmode="decimal" autocomplete="off" required>
+                    </div>
+                    
+                    <div class="field">
+                        <div class="field-header">
+                            <label for="Dp_mean">ĐK hạt trung bình</label>
+                            <span class="field-hint">(µm)</span>
+                        </div>
+                        <input type="number" id="Dp_mean" value="3.0" min="0" step="any" inputmode="decimal" autocomplete="off" required>
+                    </div>
+                    
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary" id="calc-btn">Bắt đầu tính</button>
+                        <button type="button" class="btn btn-ghost" id="clear-btn">Xóa</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Result Card -->
+            <div class="card result-card" id="result-card">
+                <div class="result-main">
+                    <span class="result-k">K =</span>
+                    <span class="result-value" id="result-value">?</span>
+                </div>
+            </div>
+
+            <!-- Batch Card -->
+            <div class="card">
+                <div class="card-title">Tính nhiều trường hợp cùng lúc</div>
+                <input type="file" id="csv-input" accept=".csv" hidden>
+                <label for="csv-input" class="dropzone" id="dropzone">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <p>Tải file CSV lên đây...</p>
+                </label>
+                <div class="file-info" id="file-info"></div>
+                <div class="batch-actions">
+                    <button type="button" class="btn btn-primary" id="batch-btn" disabled>Bắt đầu tính</button>
+                    <button type="button" class="btn btn-outline" id="download-btn" disabled>Lưu kết quả CSV...</button>
+                </div>
+            </div>
+        </aside>
+
+        <section class="content">
+            <!-- Data Table -->
+            <div class="card card-table">
+                <div class="card-header">
+                    <span class="card-title">Xem trước (30 dòng đầu)</span>
+                </div>
+                <div class="table-wrap" id="table-wrap">
+                    <div class="empty-state" id="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        <p>Tải file CSV để xem dữ liệu</p>
+                    </div>
+                    <table id="data-table">
+                        <thead>
+                            <tr id="table-header">
+                                <th></th>
+                                <th>porosity</th>
+                                <th>particle_ratio</th>
+                                <th>Df_mean</th>
+                                <th>Dp_mean</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="card card-plots">
+                <div class="card-title">Biểu đồ</div>
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">K dự đoán theo chỉ số</div>
+                        <div id="chart-k" class="chart"></div>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Biểu đồ Parity</div>
+                        <div id="chart-parity" class="chart"></div>
+                        <div class="chart-overlay" id="parity-overlay">Không có cột True K để vẽ biểu đồ parity</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="toast" id="toast"></div>
+    <script src="model.js?v=2"></script>
+    <script src="app.js?v=17"></script>
+</body>
+</html>
