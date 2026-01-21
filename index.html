@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#14b8a6">
     <title>Tính độ thấm cấu trúc xốp composite</title>
-    <link rel="stylesheet" href="style.css?v=16">
+    <link rel="stylesheet" href="style.css?v=17">
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -140,19 +140,12 @@
                 </div>
             </div>
 
-            <!-- Charts -->
+            <!-- Chart -->
             <div class="card card-plots">
                 <div class="card-title">Biểu đồ</div>
-                <div class="charts-grid">
-                    <div class="chart-container">
-                        <div class="chart-title">K dự đoán theo chỉ số</div>
-                        <div id="chart-k" class="chart"></div>
-                    </div>
-                    <div class="chart-container">
-                        <div class="chart-title">Biểu đồ Parity</div>
-                        <div id="chart-parity" class="chart"></div>
-                        <div class="chart-overlay" id="parity-overlay">Không có cột True K để vẽ biểu đồ parity</div>
-                    </div>
+                <div class="chart-container chart-single">
+                    <div class="chart-title">K dự đoán theo độ xốp</div>
+                    <div id="chart-k" class="chart"></div>
                 </div>
             </div>
         </section>
@@ -160,6 +153,6 @@
 
     <div class="toast" id="toast"></div>
     <script src="model.js?v=2"></script>
-    <script src="app.js?v=17"></script>
+    <script src="app.js?v=18"></script>
 </body>
 </html>

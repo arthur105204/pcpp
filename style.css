@@ -630,6 +630,13 @@ input[type="number"] { -moz-appearance: textfield; }
     position: relative; 
     height: 220px; /* Smaller on mobile */
     min-height: 220px;
+}
+
+/* Single chart layout - takes full width */
+.chart-single {
+    width: 100%;
+    height: 280px;
+    min-height: 280px;
     display: flex; 
     flex-direction: column; 
     background: var(--bg); 

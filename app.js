@@ -35,8 +35,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         tableBody: document.getElementById('table-body'),
         emptyState: document.getElementById('empty-state'),
         chartK: document.getElementById('chart-k'),
-        chartParity: document.getElementById('chart-parity'),
-        parityOverlay: document.getElementById('parity-overlay'),
         toast: document.getElementById('toast')
     };
     
@@ -168,16 +166,8 @@ function initCharts() {
     if (dom.chartK) {
         Plotly.newPlot(dom.chartK, [], {
             ...layout,
-            xaxis: { ...layout.xaxis, title: { text: 'index', ...layout.xaxis.title } },
+            xaxis: { ...layout.xaxis, title: { text: 'porosity', ...layout.xaxis.title } },
             yaxis: { ...layout.yaxis, title: { text: 'K (m2)', ...layout.yaxis.title }, exponentformat: 'e' }
-        }, config);
-    }
-    
-    if (dom.chartParity) {
-        Plotly.newPlot(dom.chartParity, [], {
-            ...layout,
-            xaxis: { ...layout.xaxis, title: { text: 'True K', ...layout.xaxis.title }, exponentformat: 'e' },
-            yaxis: { ...layout.yaxis, title: { text: 'Pred K', ...layout.yaxis.title }, exponentformat: 'e' }
         }, config);
     }
 }
@@ -190,9 +180,6 @@ window.addEventListener('resize', function() {
         // Re-layout charts on resize
         if (dom.chartK) {
             Plotly.relayout(dom.chartK, getChartLayout());
-        }
-        if (dom.chartParity) {
-            Plotly.relayout(dom.chartParity, getChartLayout());
         }
     }, 150);
 });
@@ -300,7 +287,6 @@ function processFile(file) {
             
             // Clear previous charts
             initCharts();
-            if (dom.parityOverlay) dom.parityOverlay.classList.remove('hidden');
             
             // Update UI
             if (dom.dropzone) dom.dropzone.classList.add('loaded');
@@ -449,7 +435,6 @@ function handleClear() {
     
     // Reset charts
     initCharts();
-    if (dom.parityOverlay) dom.parityOverlay.classList.remove('hidden');
     
     toast('Đã xóa', 'success');
 }
@@ -546,67 +531,23 @@ function updateCharts(data) {
     var config = getChartConfig();
     var isMobile = window.innerWidth < 600;
     var markerSize = isMobile ? 4 : 6;
-    var lineWidth = isMobile ? 1.5 : 2;
     
-    // Predicted K vs index
-    var indices = data.map(function(_, i) { return i; });
+    // Predicted K vs porosity
+    var porosityVals = data.map(function(r) { return r.porosity; });
     var kVals = data.map(function(r) { return r.Pred_Permeability; });
     
     if (dom.chartK) {
         Plotly.react(dom.chartK, [{
-            x: indices,
+            x: porosityVals,
             y: kVals,
             type: 'scatter',
-            mode: 'lines+markers',
-            line: { color: lineColor, width: lineWidth },
-            marker: { size: markerSize }
+            mode: 'markers',
+            marker: { size: markerSize, color: lineColor }
         }], {
             ...layout,
-            xaxis: { ...layout.xaxis, title: { text: 'index', ...layout.xaxis.title } },
+            xaxis: { ...layout.xaxis, title: { text: 'porosity', ...layout.xaxis.title } },
             yaxis: { ...layout.yaxis, title: { text: 'K (m2)', ...layout.yaxis.title }, exponentformat: 'e' }
         }, config);
-    }
-    
-    // Parity plot - only if True K exists
-    var hasTrueK = data.some(function(r) { return r.True_K !== null && r.True_K !== undefined; });
-    
-    if (hasTrueK && dom.chartParity) {
-        if (dom.parityOverlay) dom.parityOverlay.classList.add('hidden');
-        
-        var trueK = data.map(function(r) { return r.True_K; });
-        var predK = data.map(function(r) { return r.Pred_Permeability; });
-        
-        // Calculate min/max for diagonal line
-        var allK = trueK.concat(predK).filter(function(v) { return v !== null && v !== undefined; });
-        var minK = Math.min.apply(null, allK);
-        var maxK = Math.max.apply(null, allK);
-        
-        Plotly.react(dom.chartParity, [
-            // Diagonal line (perfect prediction)
-            {
-                x: [minK, maxK],
-                y: [minK, maxK],
-                type: 'scatter',
-                mode: 'lines',
-                line: { color: '#94a3b8', dash: 'dash', width: 1 },
-                showlegend: false
-            },
-            // Actual points
-            { 
-                x: trueK, 
-                y: predK, 
-                type: 'scatter',
-                mode: 'markers', 
-                marker: { size: markerSize, color: lineColor },
-                showlegend: false
-            }
-        ], {
-            ...layout,
-            xaxis: { ...layout.xaxis, title: { text: 'True K', ...layout.xaxis.title }, exponentformat: 'e' },
-            yaxis: { ...layout.yaxis, title: { text: 'Pred K', ...layout.yaxis.title }, exponentformat: 'e' }
-        }, config);
-    } else {
-        if (dom.parityOverlay) dom.parityOverlay.classList.remove('hidden');
     }
 }
 
