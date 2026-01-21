@@ -527,11 +527,9 @@ function renderTable(data, hasResults) {
 
 function updateCharts(data) {
     var lineColor = '#14b8a6';
-    var layout = getChartLayout();
-    var config = getChartConfig();
     var isMobile = window.innerWidth < 600;
-    var markerSize = isMobile ? 4 : 6;
-    var lineWidth = isMobile ? 1.5 : 2;
+    var markerSize = isMobile ? 6 : 8;
+    var lineWidth = isMobile ? 2 : 3;
     
     // Predicted K vs porosity - sort by porosity for proper line connection
     var sortedData = data.slice().sort(function(a, b) { return a.porosity - b.porosity; });
@@ -539,18 +537,35 @@ function updateCharts(data) {
     var kVals = sortedData.map(function(r) { return r.Pred_Permeability; });
     
     if (dom.chartK) {
-        Plotly.react(dom.chartK, [{
+        var trace = {
             x: porosityVals,
             y: kVals,
             type: 'scatter',
             mode: 'lines+markers',
-            line: { color: lineColor, width: lineWidth },
-            marker: { size: markerSize, color: lineColor }
-        }], {
-            ...layout,
-            xaxis: { ...layout.xaxis, title: { text: 'porosity', ...layout.xaxis.title } },
-            yaxis: { ...layout.yaxis, title: { text: 'K (m2)', ...layout.yaxis.title }, exponentformat: 'e' }
-        }, config);
+            line: { color: lineColor, width: lineWidth, shape: 'linear' },
+            marker: { size: markerSize, color: lineColor },
+            connectgaps: true
+        };
+        
+        var chartLayout = {
+            paper_bgcolor: 'transparent',
+            plot_bgcolor: 'transparent',
+            font: { family: 'DM Sans, sans-serif', size: 10 },
+            margin: { t: 10, r: 20, b: 50, l: 70 },
+            xaxis: { 
+                title: 'porosity',
+                gridcolor: '#e2e8f0',
+                zerolinecolor: '#e2e8f0'
+            },
+            yaxis: { 
+                title: 'K (m2)',
+                gridcolor: '#e2e8f0',
+                zerolinecolor: '#e2e8f0',
+                exponentformat: 'e'
+            }
+        };
+        
+        Plotly.react(dom.chartK, [trace], chartLayout, { responsive: true, displayModeBar: false });
     }
 }
 
