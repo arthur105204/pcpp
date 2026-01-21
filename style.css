@@ -470,7 +470,8 @@ input[type="number"] { -moz-appearance: textfield; }
     margin-bottom: var(--space-2); 
     display: block; 
     margin-left: auto; 
-    margin-right: auto; 
+    margin-right: auto;
+    pointer-events: none; /* Allow clicks to pass through to label */
 }
 
 .dropzone p { 
@@ -478,6 +479,7 @@ input[type="number"] { -moz-appearance: textfield; }
     font-size: 0.85rem; 
     margin: 0;
     line-height: 1.4;
+    pointer-events: none; /* Allow clicks to pass through to label */
 }
 
 /* ==========================================================================

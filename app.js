@@ -531,17 +531,20 @@ function updateCharts(data) {
     var config = getChartConfig();
     var isMobile = window.innerWidth < 600;
     var markerSize = isMobile ? 4 : 6;
+    var lineWidth = isMobile ? 1.5 : 2;
     
-    // Predicted K vs porosity
-    var porosityVals = data.map(function(r) { return r.porosity; });
-    var kVals = data.map(function(r) { return r.Pred_Permeability; });
+    // Predicted K vs porosity - sort by porosity for proper line connection
+    var sortedData = data.slice().sort(function(a, b) { return a.porosity - b.porosity; });
+    var porosityVals = sortedData.map(function(r) { return r.porosity; });
+    var kVals = sortedData.map(function(r) { return r.Pred_Permeability; });
     
     if (dom.chartK) {
         Plotly.react(dom.chartK, [{
             x: porosityVals,
             y: kVals,
             type: 'scatter',
-            mode: 'markers',
+            mode: 'lines+markers',
+            line: { color: lineColor, width: lineWidth },
             marker: { size: markerSize, color: lineColor }
         }], {
             ...layout,
