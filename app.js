@@ -440,6 +440,8 @@ function handleClear() {
 }
 
 // Batch prediction - uses local model
+// Note: CSV data is always expected in micrometers (um)
+// The unit switch only affects manual form input, not CSV batch data
 async function handleBatch() {
     if (!csvData || csvData.length === 0) return;
     
@@ -451,24 +453,8 @@ async function handleBatch() {
     setLoading(dom.batchBtn, true);
     
     try {
-        // Convert units if needed (model expects um)
-        var dataForPrediction = csvData.map(function(row) {
-            var df = row.Df_mean;
-            var dp = row.Dp_mean;
-            if (unit === 'm') {
-                df *= 1e6;  // Convert m to um
-                dp *= 1e6;
-            }
-            return {
-                porosity: row.porosity,
-                particle_ratio: row.particle_ratio,
-                Df_mean: df,
-                Dp_mean: dp
-            };
-        });
-        
-        // Use local model for predictions
-        var predictions = predictBatch(dataForPrediction);
+        // Use local model for predictions (CSV data is always in um)
+        var predictions = predictBatch(csvData);
         
         // Combine input data with predictions
         var trueKValues = csvData._trueK || [];
