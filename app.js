@@ -473,6 +473,19 @@ async function handleBatch() {
         renderTable(results, true);
         updateCharts(results);
         if (dom.downloadBtn) dom.downloadBtn.disabled = false;
+        
+        // Show K range in result box
+        var kValues = results.map(function(r) { return r.Pred_Permeability; }).filter(function(v) { return isFinite(v); });
+        if (kValues.length > 0 && dom.resultValue) {
+            var minK = Math.min.apply(null, kValues);
+            var maxK = Math.max.apply(null, kValues);
+            if (minK === maxK) {
+                dom.resultValue.textContent = minK.toExponential(2);
+            } else {
+                dom.resultValue.textContent = minK.toExponential(2) + ' ~ ' + maxK.toExponential(2);
+            }
+        }
+        
         toast('Đã tính ' + results.length + ' trường hợp', 'success');
     } catch (err) {
         console.error(err);
@@ -487,14 +500,14 @@ function renderTable(data, hasResults) {
     if (dom.table) dom.table.classList.add('visible');
     if (dom.tableBody) dom.tableBody.innerHTML = '';
     
-    // Update header
+    // Update header with Vietnamese labels
     if (dom.tableHeader) {
         if (hasResults) {
             dom.tableHeader.innerHTML = 
-                '<th></th><th>porosity</th><th>particle_ratio</th><th>Df_mean</th><th>Dp_mean</th><th>Pred_log10K</th><th>Pred_Permeability</th>';
+                '<th></th><th>Do xop</th><th>Ti le hat</th><th>DK soi TB</th><th>DK hat TB</th><th>Do tham</th>';
         } else {
             dom.tableHeader.innerHTML = 
-                '<th></th><th>porosity</th><th>particle_ratio</th><th>Df_mean</th><th>Dp_mean</th>';
+                '<th></th><th>Do xop</th><th>Ti le hat</th><th>DK soi TB</th><th>DK hat TB</th>';
         }
     }
     
@@ -512,7 +525,6 @@ function renderTable(data, hasResults) {
                 '<td>' + row.particle_ratio.toFixed(2) + '</td>' +
                 '<td>' + row.Df_mean.toFixed(2) + '</td>' +
                 '<td>' + row.Dp_mean.toFixed(2) + '</td>' +
-                '<td>' + row.Pred_log10K.toFixed(6) + '</td>' +
                 '<td>' + row.Pred_Permeability.toExponential(6) + '</td>';
         } else {
             tr.innerHTML = 
