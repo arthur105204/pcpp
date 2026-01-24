@@ -504,10 +504,10 @@ function renderTable(data, hasResults) {
     if (dom.tableHeader) {
         if (hasResults) {
             dom.tableHeader.innerHTML = 
-                '<th></th><th>Do xop</th><th>Ti le hat</th><th>DK soi TB</th><th>DK hat TB</th><th>Do tham</th>';
+                '<th></th><th>Độ xốp</th><th>Tỉ lệ hạt</th><th>ĐK sợi trung bình</th><th>ĐK hạt trung bình</th><th>Độ thẩm</th>';
         } else {
             dom.tableHeader.innerHTML = 
-                '<th></th><th>Do xop</th><th>Ti le hat</th><th>DK soi TB</th><th>DK hat TB</th>';
+                '<th></th><th>Độ xốp</th><th>Tỉ lệ hạt</th><th>ĐK sợi trung bình</th><th>ĐK hạt trung bình</th>';
         }
     }
     
