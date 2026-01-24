@@ -166,7 +166,7 @@ function initCharts() {
     if (dom.chartK) {
         Plotly.newPlot(dom.chartK, [], {
             ...layout,
-            xaxis: { ...layout.xaxis, title: { text: 'porosity', ...layout.xaxis.title } },
+            xaxis: { ...layout.xaxis, title: { text: 'Độ xốp', ...layout.xaxis.title } },
             yaxis: { ...layout.yaxis, title: { text: 'K (m2)', ...layout.yaxis.title }, exponentformat: 'e' }
         }, config);
     }
@@ -567,7 +567,7 @@ function updateCharts(data) {
             font: { family: 'DM Sans, sans-serif', size: 10 },
             margin: { t: 10, r: 20, b: 50, l: 70 },
             xaxis: { 
-                title: 'porosity',
+                title: 'Độ xốp',
                 gridcolor: '#e2e8f0',
                 zerolinecolor: '#e2e8f0'
             },

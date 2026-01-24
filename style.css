@@ -581,7 +581,6 @@ input[type="number"] { -moz-appearance: textfield; }
     color: var(--text-secondary); 
     position: sticky; 
     top: 0; 
-    text-transform: lowercase;
     z-index: 1;
 }
 
